@@ -1,0 +1,8 @@
+# Interface web local
+streamlit>=1.40,<2
+# Leitura, processamento e gravação de imagens
+pillow>=10.4,<13
+# Encriptação opcional (Fernet + PBKDF2)
+cryptography>=43,<51
+# Testes automatizados
+pytest>=8,<10

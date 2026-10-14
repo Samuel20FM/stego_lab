@@ -1,0 +1,16 @@
+[server]
+# Limite de upload em MB (as imagens são validadas também no código)
+maxUploadSize = 25
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
+
+[theme]
+base = "dark"
+primaryColor = "#38BDF8"
+backgroundColor = "#0A1020"
+secondaryBackgroundColor = "#111A2E"
+textColor = "#E2E8F0"

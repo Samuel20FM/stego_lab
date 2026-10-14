@@ -1,0 +1,17 @@
+# Ambiente virtual
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Imagens geradas durante demonstrações
+*_stego.png
+output/
+
+# Editores / SO
+.vscode/
+.idea/
+.DS_Store
