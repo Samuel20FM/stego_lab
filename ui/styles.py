@@ -45,13 +45,21 @@ h1, h2, h3, h4 { letter-spacing: -0.01em; }
 ::selection { background: rgba(56, 189, 248, 0.35); }
 
 /* ---------- Cabeçalho ---------- */
-.sl-header {
-  display: flex; align-items: center; justify-content: space-between; gap: 1.25rem;
-  padding: 1.1rem 1.4rem; margin-bottom: 1.1rem;
+/* Barra de cabeçalho (st.container key="headerbar"), fixa no topo ao rolar */
+/* O Streamlit envolve o contentor num stLayoutWrapper: é esse que fica fixo. */
+[data-testid="stLayoutWrapper"]:has(> .st-key-headerbar) { position: sticky; top: 0.5rem; z-index: 50; }
+.st-key-headerbar {
+  padding: 0.9rem 1.3rem; margin-bottom: 1.1rem;
   border: 1px solid var(--border); border-radius: calc(var(--radius) + 4px);
-  background: linear-gradient(135deg, rgba(17, 26, 46, 0.92), rgba(13, 21, 40, 0.75));
-  box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.8);
+  background: linear-gradient(135deg, rgba(17, 26, 46, 0.97), rgba(13, 21, 40, 0.94));
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.85);
   animation: sl-fade 0.5s ease both;
+}
+.st-key-headerbar .stButton > button[kind="primary"] { animation: sl-pulse 2.4s ease-in-out 3; }
+@keyframes sl-pulse {
+  0%, 100% { box-shadow: 0 10px 24px -14px rgba(56, 189, 248, 0.9); }
+  50% { box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.18), 0 10px 24px -14px rgba(56, 189, 248, 0.9); }
 }
 .sl-brand { display: flex; align-items: center; gap: 1rem; }
 .sl-logo { width: 54px; height: 54px; flex: none; filter: drop-shadow(0 6px 14px rgba(56, 189, 248, 0.25)); }
@@ -61,10 +69,7 @@ h1, h2, h3, h4 { letter-spacing: -0.01em; }
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .sl-subtitle { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.98rem; }
-.sl-tag {
-  text-align: right; color: var(--faint); font-size: 0.78rem; line-height: 1.5;
-  border-left: 1px solid var(--border); padding-left: 1rem;
-}
+.sl-tag { text-align: right; color: var(--faint); font-size: 0.76rem; line-height: 1.5; margin-top: 0.15rem; }
 .sl-tag b { color: var(--muted); font-weight: 600; }
 
 /* ---------- Separadores ---------- */
@@ -255,8 +260,8 @@ h1, h2, h3, h4 { letter-spacing: -0.01em; }
 }
 @media (max-width: 640px) {
   .block-container { padding-left: 1rem; padding-right: 1rem; }
-  .sl-header { flex-direction: column; align-items: flex-start; }
-  .sl-tag { text-align: left; border-left: 0; padding-left: 0; }
+  [data-testid="stLayoutWrapper"]:has(> .st-key-headerbar) { position: static; }
+  .sl-tag { text-align: left; }
   .sl-title { font-size: 1.5rem; }
   .sl-compare { grid-template-columns: 1fr; }
   .sl-flow, .sl-stats { grid-template-columns: 1fr 1fr; }

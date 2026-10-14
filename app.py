@@ -56,6 +56,23 @@ FORMAT_LABELS = {
 def _state_defaults() -> None:
     st.session_state.setdefault("hide_nonce", 0)
     st.session_state.setdefault("extract_nonce", 0)
+    st.session_state.setdefault("view", "lab")  # "lab" | "result"
+    st.session_state.setdefault("scroll_nonce", 0)
+
+
+def _go_result() -> None:
+    st.session_state.view = "result"
+    st.session_state.scroll_nonce += 1
+
+
+def _go_lab() -> None:
+    st.session_state.view = "lab"
+    st.session_state.scroll_nonce += 1
+
+
+def _new_hide() -> None:
+    _reset_hide()
+    _go_lab()
 
 
 def _reset_hide() -> None:
@@ -296,19 +313,32 @@ def render_hide_tab() -> None:
                 "pct": used / total * 100,
                 "encrypted": encrypt,
                 "verified": verified,
+                "src_name": upload.name,
+                "src_format": info.format,
+                "src_size": info.file_size or 0,
             }
         except Exception as exc:
             st.session_state.pop("hide_result", None)
             _show_error(exc)
+        else:
+            # Leva o utilizador directamente para a página de resultado.
+            _go_result()
+            st.rerun()
 
     result = st.session_state.get("hide_result")
     if result and result["signature"] == signature:
-        _render_hide_result(result, info)
+        ui.notice(
+            "success",
+            "Resultado pronto",
+            "Use o botão “Ver resultado” no topo da página para ver as imagens e descarregar o ficheiro.",
+        )
 
 
-def _render_hide_result(r: dict, info) -> None:
+def render_result_page() -> None:
+    """Página dedicada ao resultado da operação "Esconder mensagem"."""
+    r = st.session_state.hide_result
     with st.container(key="cardresult_hide"):
-        ui.step("✓", "Resultado", "A imagem original não foi alterada")
+        ui.step("✓", "Resultado", f"Imagem de partida: {r['src_name']} · a original não foi alterada")
         if r["verified"]:
             ui.notice(
                 "success",
@@ -329,7 +359,7 @@ def _render_hide_result(r: dict, info) -> None:
         )
 
         c1, c2, c3 = st.columns(3, gap="medium")
-        c1.image(r["original"], width="stretch", caption=f"Original · {info.format} · {ui.fmt_bytes(info.file_size or 0)}")
+        c1.image(r["original"], width="stretch", caption=f"Original · {r['src_format']} · {ui.fmt_bytes(r['src_size'])}")
         c2.image(r["stego"], width="stretch", caption=f"Com mensagem · {r['format']} · {ui.fmt_bytes(len(r['bytes']))}")
         c3.image(r["diff"], width="stretch", caption=f"Zoom ×{ZOOM_SCALE} no canto superior esquerdo ({ZOOM_W}×{ZOOM_H} píxeis): a verde, os píxeis alterados")
         st.caption(
@@ -355,6 +385,10 @@ def _render_hide_result(r: dict, info) -> None:
                 "Partilhe o ficheiro sem o editar",
                 "Redimensionar, recortar, editar ou comprimir (JPEG, WhatsApp, redes sociais) destrói a mensagem.",
             )
+
+    n1, n2, _ = st.columns([1, 1, 1.4])
+    n1.button("Voltar e editar", icon=":material/edit:", width="stretch", on_click=_go_lab, key="result_back")
+    n2.button("Esconder outra mensagem", icon=":material/add:", width="stretch", on_click=_new_hide, key="result_new")
 
 
 # --------------------------------------------------------------------------
@@ -659,27 +693,69 @@ def render_about_tab() -> None:
 
 # --------------------------------------------------------------------------
 
+def render_headerbar(in_result: bool) -> None:
+    """Cabeçalho fixo no topo, com o botão de navegação sempre visível."""
+    with st.container(key="headerbar"):
+        left, right = st.columns([3, 1.3], vertical_alignment="center")
+        with left:
+            ui.brand()
+        with right:
+            if in_result:
+                st.button(
+                    "Voltar ao laboratório",
+                    icon=":material/arrow_back:",
+                    width="stretch",
+                    on_click=_go_lab,
+                    key="nav_back",
+                )
+            elif "hide_result" in st.session_state:
+                st.button(
+                    "Ver resultado",
+                    type="primary",
+                    icon=":material/task_alt:",
+                    width="stretch",
+                    on_click=_go_result,
+                    key="nav_result",
+                )
+            ui.header_tag()
+
+
 def main() -> None:
     _state_defaults()
     ui.inject_css()
-    ui.header()
-    tabs = st.tabs(
-        [
-            ":material/lock: Esconder mensagem",
-            ":material/lock_open: Extrair mensagem",
-            ":material/school: Como funciona?",
-            ":material/info: Sobre o projecto",
-        ]
-    )
-    with tabs[0]:
-        render_hide_tab()
-    with tabs[1]:
-        render_extract_tab()
-    with tabs[2]:
-        render_how_tab()
-    with tabs[3]:
-        render_about_tab()
+
+    in_result = st.session_state.view == "result" and "hide_result" in st.session_state
+    if not in_result:
+        st.session_state.view = "lab"
+    render_headerbar(in_result)
+
+    if in_result:
+        render_result_page()
+        # O laboratório continua a ser desenhado (escondido) para que a imagem
+        # carregada e a mensagem não se percam ao voltar.
+        st.html("<style>.st-key-lab_view { display: none; }</style>")
+
+    with st.container(key="lab_view"):
+        tabs = st.tabs(
+            [
+                ":material/lock: Esconder mensagem",
+                ":material/lock_open: Extrair mensagem",
+                ":material/school: Como funciona?",
+                ":material/info: Sobre o projecto",
+            ]
+        )
+        with tabs[0]:
+            render_hide_tab()
+        with tabs[1]:
+            render_extract_tab()
+        with tabs[2]:
+            render_how_tab()
+        with tabs[3]:
+            render_about_tab()
     ui.footer()
+
+    if st.session_state.scroll_nonce:
+        ui.scroll_to_top(st.session_state.scroll_nonce)
 
 
 main()

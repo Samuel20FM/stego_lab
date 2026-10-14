@@ -193,8 +193,9 @@ Resultado no ambiente de desenvolvimento (Linux, Python 3.12.3): **57 testes pas
 3. Escreva a mensagem. O contador de caracteres e a barra de ocupação são actualizados quando sai do campo ou carrega em `Ctrl+Enter`.
 4. *(Opcional)* Active **Proteger o conteúdo com palavra-passe** e introduza-a duas vezes.
 5. Escolha o formato de saída (**PNG** recomendado).
-6. Clique em **Esconder mensagem**. A aplicação reabre automaticamente o ficheiro gerado para confirmar que a mensagem é recuperável.
-7. Compare as imagens lado a lado, veja o zoom dos píxeis alterados e clique em **Descarregar imagem**.
+6. Clique em **Esconder mensagem**. A aplicação reabre automaticamente o ficheiro gerado para confirmar que a mensagem é recuperável e **abre a página de resultado**.
+7. Na página de resultado, compare as imagens lado a lado, veja o zoom dos píxeis alterados e clique em **Descarregar imagem**.
+8. O botão no cabeçalho, que fica sempre visível no topo, alterna entre **Voltar ao laboratório** e **Ver resultado**. Ao voltar, a imagem e a mensagem continuam preenchidas. **Esconder outra mensagem** limpa o formulário.
 
 ## 11. Como extrair uma mensagem
 
@@ -242,7 +243,7 @@ Resultado no ambiente de desenvolvimento (Linux, Python 3.12.3): **57 testes pas
 | 0:00–1:00 | Samuel | **Problema e objectivo:** comunicar sem levantar suspeitas. Apresentar o StegoLab. |
 | 1:00–2:00 | Samuel | **Conceito:** esteganografia esconde a existência da mensagem. Separador *Como funciona?*, passos 1–4. |
 | 2:00–3:00 | Adilson | **LSB:** demo do píxel (alterar os bits R/G/B e ver que a cor é igual) e tabela "do texto aos bits" com "Olá". |
-| 3:00–4:15 | Adilson | **Esconder:** carregar `demo_paisagem.png`, escrever a mensagem, activar a palavra-passe, esconder. Mostrar as estatísticas, as imagens lado a lado, o zoom dos píxeis e descarregar. |
+| 3:00–4:15 | Adilson | **Esconder:** carregar `demo_paisagem.png`, escrever a mensagem, activar a palavra-passe, esconder (a app abre a página de resultado). Mostrar as estatísticas, as imagens lado a lado, o zoom dos píxeis e descarregar. |
 | 4:15–5:15 | Samuel | **Extrair:** (opcional: reiniciar a aplicação) carregar o ficheiro descarregado, tentar uma palavra-passe errada (erro claro), depois a correcta, e copiar a mensagem. Carregar a imagem original para mostrar o erro "Nenhuma mensagem encontrada". |
 | 5:15–6:15 | Adilson | **Testes e limitações:** correr `python -m pytest`; explicar o cabeçalho, o CRC32, o JPEG e o redimensionamento. |
 | 6:15–7:00 | Samuel | **Esconder ≠ encriptar:** cartão de comparação. A combinação das duas é mais forte, mas não absoluta. Conclusão. |

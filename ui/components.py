@@ -50,25 +50,41 @@ def inject_css() -> None:
     st.html(CSS)
 
 
-def header() -> None:
+def brand() -> None:
+    """Logótipo, nome e subtítulo (lado esquerdo do cabeçalho)."""
     svg = base64.b64encode((ASSETS / "logo.svg").read_bytes()).decode("ascii")
-    logo = f'<img class="sl-logo" src="data:image/svg+xml;base64,{svg}" alt="Logótipo StegoLab">'
     st.html(
         f"""
-        <header class="sl-header">
-          <div class="sl-brand">
-            {logo}
-            <div>
-              <h1 class="sl-title">Stego<span>Lab</span></h1>
-              <p class="sl-subtitle">Laboratório de Esteganografia — esconder e recuperar mensagens em imagens com LSB</p>
-            </div>
+        <div class="sl-brand">
+          <img class="sl-logo" src="data:image/svg+xml;base64,{svg}" alt="Logótipo StegoLab">
+          <div>
+            <h1 class="sl-title">Stego<span>Lab</span></h1>
+            <p class="sl-subtitle">Laboratório de Esteganografia — esconder e recuperar mensagens em imagens com LSB</p>
           </div>
-          <div class="sl-tag">
-            <b>Trabalho prático · {COURSE}</b><br>
-            Universidade Pedagógica de Maputo<br>{YEAR}
-          </div>
-        </header>
+        </div>
         """
+    )
+
+
+def header_tag() -> None:
+    """Identificação académica discreta (lado direito do cabeçalho)."""
+    st.html(
+        f'<div class="sl-tag"><b>Trabalho prático · {COURSE}</b><br>'
+        f"Universidade Pedagógica de Maputo<br>{YEAR}</div>"
+    )
+
+
+def scroll_to_top(nonce: int) -> None:
+    """Leva o utilizador ao topo da página (usado ao abrir a página de resultado)."""
+    st_components.html(
+        f"""<script>
+        // {nonce}: conteúdo diferente em cada pedido, para o script voltar a correr
+        const doc = window.parent.document;
+        const targets = [window.parent, doc.querySelector('[data-testid="stMain"]'),
+                         doc.querySelector('[data-testid="stAppViewContainer"]'), doc.scrollingElement];
+        targets.forEach(t => {{ try {{ t && t.scrollTo({{ top: 0, behavior: "smooth" }}); }} catch (e) {{}} }});
+        </script>""",
+        height=0,
     )
 
 
