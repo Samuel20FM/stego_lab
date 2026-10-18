@@ -254,6 +254,43 @@ h1, h2, h3, h4 { letter-spacing: -0.01em; }
 @keyframes sl-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
+/* ---------- Texto, ficheiros e caracteres invisíveis ---------- */
+.sl-textprev {
+  font-family: var(--mono); font-size: 0.84rem; line-height: 1.6; color: var(--text);
+  white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow: auto;
+  padding: 0.9rem 1rem; border-radius: 12px;
+  background: rgba(2, 6, 23, 0.5); border: 1px solid var(--border);
+}
+.sl-zw { display: inline; letter-spacing: 1px; }
+.sl-zw i {
+  display: inline-block; width: 0.42rem; height: 0.9rem; margin: 0 1px; vertical-align: -2px;
+  border-radius: 2px; font-style: normal;
+}
+.sl-zw i.b0 { background: rgba(56, 189, 248, 0.35); }
+.sl-zw i.b1 { background: rgba(56, 189, 248, 0.85); }
+.sl-zw i.b2 { background: rgba(52, 211, 153, 0.45); }
+.sl-zw i.b3 { background: rgba(52, 211, 153, 0.95); }
+.sl-zw .more { color: var(--emerald); font-size: 0.78rem; margin-left: 0.3rem; }
+.sl-legend { display: flex; flex-wrap: wrap; gap: 0.8rem; color: var(--faint); font-size: 0.78rem; margin-top: 0.5rem; }
+.sl-legend .sl-zw i { margin-right: 0.3rem; }
+.sl-filecard {
+  display: flex; align-items: center; gap: 1rem; min-height: 130px; padding: 1.1rem 1.2rem;
+  border-radius: 12px; border: 1px solid var(--border); background: rgba(2, 6, 23, 0.4);
+}
+.sl-filecard .ext {
+  display: grid; place-items: center; width: 64px; height: 76px; flex: none; border-radius: 10px;
+  font-family: var(--mono); font-weight: 700; font-size: 0.85rem; color: #04121F;
+  background: linear-gradient(160deg, var(--blue) 0%, var(--emerald) 100%);
+  clip-path: polygon(0 0, 72% 0, 100% 22%, 100% 100%, 0 100%);
+}
+.sl-filecard .name { font-weight: 600; color: var(--text); word-break: break-all; }
+.sl-filecard .meta { color: var(--muted); font-size: 0.84rem; margin-top: 0.15rem; }
+.sl-code {
+  font-family: var(--mono); font-size: 0.78rem; line-height: 1.55; color: #BAE6FD;
+  white-space: pre; overflow: auto; max-height: 220px; padding: 0.8rem 1rem; border-radius: 12px;
+  background: rgba(2, 6, 23, 0.65); border: 1px solid var(--border);
+}
+
 /* ---------- Responsivo ---------- */
 @media (max-width: 900px) {
   .sl-flow, .sl-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }

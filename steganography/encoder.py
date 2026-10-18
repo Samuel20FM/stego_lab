@@ -5,53 +5,64 @@ Exemplo para um canal de cor com valor 200 e o bit da mensagem igual a 1:
     200 = 1100100[0]  ->  limpar o LSB  (& 0xFE) -> 1100100[0]
                       ->  escrever o bit (| 1)   -> 1100100[1] = 201
 
-A cor muda no máximo 1 unidade em 255, o que é imperceptível à vista.
+A cor muda no máximo 1 unidade em 255, o que é imperceptível à vista. O mesmo
+princípio aplica-se às amostras de áudio (WAV e faixa de som dos vídeos).
 """
 
 from __future__ import annotations
 
 from PIL import Image
 
-from . import crypto
-from .errors import CapacityError, EmptyMessageError, MessageTooLongError
+from .errors import CapacityError
 from .image_utils import capacity_bytes, merge_channels, split_channels
-from .payload import HEADER_SIZE, build_payload, bytes_to_bits
+from .payload import HEADER_SIZE, bytes_to_bits
+from .secret import MAX_MESSAGE_BYTES, Secret, estimate_size, make_payload
 
-MAX_MESSAGE_BYTES = 100_000  # limite razoável para uma demonstração
+__all__ = [
+    "MAX_MESSAGE_BYTES",
+    "embed_bits",
+    "embed_payload",
+    "embed_payload_in_image",
+    "hide_message",
+    "required_bytes",
+]
 
 
 def embed_bits(carrier: bytearray, bits: list[int]) -> None:
-    """Escreve cada bit no LSB de um byte de cor (R, G, B, R, G, B, ...).
+    """Escreve cada bit no LSB de um byte portador (R, G, B, R, G, B, ...).
 
     Altera ``carrier`` no próprio objecto. Nunca escreve além do seu tamanho.
     """
     if len(bits) > len(carrier):
-        raise CapacityError("Não existem canais de cor suficientes para os dados.")
+        raise CapacityError("Não existem bytes portadores suficientes para os dados.")
     for i, bit in enumerate(bits):
         carrier[i] = (carrier[i] & 0xFE) | bit
 
 
-def prepare_data(message: str, password: str | None = None) -> tuple[bytes, bool]:
-    """Valida e converte a mensagem em bytes (UTF-8), encriptando-a se pedido."""
-    if not isinstance(message, str) or message.strip() == "":
-        raise EmptyMessageError("Escreva uma mensagem antes de a esconder.")
-    data = message.encode("utf-8")
-    if len(data) > MAX_MESSAGE_BYTES:
-        raise MessageTooLongError(
-            f"A mensagem tem {len(data):,} bytes; o máximo permitido é "
-            f"{MAX_MESSAGE_BYTES:,} bytes."
+def embed_payload(carrier: bytearray, payload: bytes) -> None:
+    """Escreve o payload completo (cabeçalho + dados) a partir do início."""
+    available = len(carrier) // 8 - HEADER_SIZE
+    needed = len(payload) - HEADER_SIZE
+    if needed > available:
+        raise CapacityError(
+            f"O segredo precisa de {needed:,} bytes, mas o ficheiro só suporta "
+            f"{max(0, available):,} bytes. Use um ficheiro maior ou um segredo mais pequeno."
         )
-    if password:
-        return crypto.encrypt(data, password), True
-    return data, False
+    embed_bits(carrier, bytes_to_bits(payload))
 
 
 def required_bytes(message: str, encrypted: bool = False) -> int:
-    """Bytes que a mensagem ocupará na imagem (cabeçalho incluído)."""
-    size = len(message.encode("utf-8"))
-    if encrypted:
-        size = crypto.encrypted_size(size)
-    return HEADER_SIZE + size
+    """Bytes que a mensagem ocupará no portador (cabeçalho incluído)."""
+    return estimate_size(len(message.encode("utf-8")), encrypted=encrypted)
+
+
+def embed_payload_in_image(image: Image.Image, payload: bytes) -> Image.Image:
+    """Devolve uma NOVA imagem com o payload nos LSB dos canais R, G e B."""
+    rgb, alpha = split_channels(image)  # convert() cria cópias
+    carrier = bytearray(rgb.tobytes())  # R,G,B,R,G,B,... linha a linha
+    embed_payload(carrier, payload)
+    stego_rgb = Image.frombytes("RGB", rgb.size, bytes(carrier))
+    return merge_channels(stego_rgb, alpha)
 
 
 def hide_message(
@@ -61,18 +72,11 @@ def hide_message(
 
     A imagem original nunca é modificada; as dimensões são preservadas.
     """
-    data, encrypted = prepare_data(message, password)
-
+    payload = make_payload(Secret.text(message), password)
     available = capacity_bytes(image)
-    if len(data) > available:
+    if len(payload) - HEADER_SIZE > available:
         raise CapacityError(
-            f"A mensagem precisa de {len(data):,} bytes, mas a imagem só suporta "
-            f"{available:,} bytes. Use uma imagem maior ou uma mensagem mais curta."
+            f"A mensagem precisa de {len(payload) - HEADER_SIZE:,} bytes, mas a imagem só "
+            f"suporta {available:,} bytes. Use uma imagem maior ou uma mensagem mais curta."
         )
-
-    rgb, alpha = split_channels(image)  # convert() cria cópias
-    carrier = bytearray(rgb.tobytes())  # R,G,B,R,G,B,... linha a linha
-    embed_bits(carrier, bytes_to_bits(build_payload(data, encrypted)))
-
-    stego_rgb = Image.frombytes("RGB", rgb.size, bytes(carrier))
-    return merge_channels(stego_rgb, alpha)
+    return embed_payload_in_image(image, payload)

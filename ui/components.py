@@ -59,7 +59,7 @@ def brand() -> None:
           <img class="sl-logo" src="data:image/svg+xml;base64,{svg}" alt="Logótipo StegoLab">
           <div>
             <h1 class="sl-title">Stego<span>Lab</span></h1>
-            <p class="sl-subtitle">Laboratório de Esteganografia — esconder e recuperar mensagens em imagens com LSB</p>
+            <p class="sl-subtitle">Laboratório de Esteganografia - Com LSB</p>
           </div>
         </div>
         """
@@ -69,7 +69,8 @@ def brand() -> None:
 def header_tag() -> None:
     """Identificação académica discreta (lado direito do cabeçalho)."""
     st.html(
-        f'<div class="sl-tag"><b>Trabalho prático · {COURSE}</b><br>'
+        f'<div class="sl-tag">Adilson Chaguala · Samuel Massinga<br>'
+        f'<div class="sl-tag"><b>{COURSE}</b><br>'
         f"Universidade Pedagógica de Maputo<br>{YEAR}</div>"
     )
 
@@ -95,7 +96,6 @@ def footer() -> None:
           <div><b>{COURSE}</b> · Fundamentos de Segurança Informática<br>{INSTITUTION}</div>
           <div><b>Docente:</b> {TEACHER}<br><b>Integrantes:</b> {" e ".join(MEMBERS)}</div>
           <div>Demonstração académica de esteganografia em Python.<br>
-          A esteganografia não garante segurança absoluta.</div>
         </footer>
         """
     )
@@ -138,7 +138,7 @@ def capacity_meter(used: int, total: int, encrypted: bool = False) -> None:
     st.html(
         f"""
         <div class="sl-meter {state}" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{width:.0f}">
-          <div class="sl-meter-top"><span>Ocupação estimada da imagem</span>
+          <div class="sl-meter-top"><span>Ocupação estimada do ficheiro</span>
             <span><b>{fmt_bytes(used)}</b> de <b>{fmt_bytes(total)}</b> · <b>{fmt_pct(pct)}</b></span></div>
           <div class="sl-meter-track"><div class="sl-meter-fill" style="width:{width:.2f}%"></div></div>
           <div class="sl-meter-foot">Inclui o cabeçalho de 14 bytes{" e a sobrecarga da encriptação (sal + token Fernet)" if encrypted else ""}.</div>
@@ -169,6 +169,46 @@ def stats(items: list[tuple[str, str]]) -> None:
         for k, v in items
     )
     st.html(f'<div class="sl-stats">{cells}</div>')
+
+
+def text_preview(text: str, limit: int = 1500) -> None:
+    more = "…" if len(text) > limit else ""
+    st.html(f'<div class="sl-textprev">{escape(text[:limit])}{more}</div>')
+
+
+ZW_CHARS = ("\u200b", "\u200c", "\u200d", "\u2060")
+
+
+def zero_width_view(text: str, start: int, end: int, max_marks: int = 320) -> None:
+    """Mostra o texto com os caracteres invisíveis desenhados como blocos coloridos."""
+    marks = "".join(
+        f'<i class="b{ZW_CHARS.index(c)}" title="U+{ord(c):04X}"></i>'
+        for c in text[start : min(end, start + max_marks)]
+    )
+    hidden = end - start - max_marks
+    more = f'<span class="more">… mais {fmt_int(hidden)} caracteres invisíveis</span>' if hidden > 0 else ""
+    before = text[max(0, start - 120) : start]
+    after = text[end : end + 240]
+    legend = "".join(
+        f'<span><span class="sl-zw"><i class="b{i}"></i></span>U+{ord(c):04X} = {i:02b}</span>'
+        for i, c in enumerate(ZW_CHARS)
+    )
+    st.html(
+        f'<div class="sl-textprev">{"…" if start > 120 else ""}{escape(before)}'
+        f'<span class="sl-zw">{marks}{more}</span>{escape(after)}{"…" if len(text) > end + 240 else ""}</div>'
+        f'<div class="sl-legend">{legend}</div>'
+    )
+
+
+def file_card(ext: str, name: str, meta: str) -> None:
+    st.html(
+        f'<div class="sl-filecard"><div class="ext">{escape(ext.upper()[:5])}</div>'
+        f'<div><div class="name">{escape(name)}</div><div class="meta">{escape(meta)}</div></div></div>'
+    )
+
+
+def code_view(text: str) -> None:
+    st.html(f'<div class="sl-code">{escape(text)}</div>')
 
 
 def secret_box(message: str) -> None:

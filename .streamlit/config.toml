@@ -1,6 +1,6 @@
 [server]
 # Limite de upload em MB (as imagens são validadas também no código)
-maxUploadSize = 25
+maxUploadSize = 100
 
 [browser]
 gatherUsageStats = false

@@ -1,0 +1,11 @@
+Explicar porque que a imagem criptografada aumenta de tamanho...
+
+O que eh capacidade usada?
+
+No que consiste os canais (RGB)?
+
+
+Explicar como o algoritmo funciona e quais as vantages de usar estegonografia nos dias atuais.
+
+Hospedar app.
+
