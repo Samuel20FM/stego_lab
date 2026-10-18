@@ -7,28 +7,42 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 from PIL import Image
 
-from . import crypto
-from .errors import CorruptPayloadError, PasswordRequiredError
-from .image_utils import capacity_bytes, split_channels
-from .payload import HEADER_BITS, Header, bits_to_bytes, parse_header, verify_data
+from .errors import CorruptPayloadError
+from .image_utils import split_channels
+from .payload import HEADER_BITS, HEADER_SIZE, Header, bits_to_bytes, parse_header
+from .secret import RevealResult, open_payload
 
-
-@dataclass(frozen=True)
-class RevealResult:
-    message: str
-    encrypted: bool
-    data_bytes: int  # bytes de dados lidos (sem cabeçalho)
+__all__ = [
+    "RevealResult",
+    "extract_bits",
+    "read_header",
+    "read_lsb_header",
+    "read_lsb_payload",
+    "reveal_message",
+]
 
 
 def extract_bits(carrier: bytes, start: int, count: int) -> list[int]:
     """Lê ``count`` LSB a partir da posição ``start``, sem ultrapassar os dados."""
     if start < 0 or count < 0 or start + count > len(carrier):
-        raise CorruptPayloadError("Tentativa de leitura fora dos limites da imagem.")
+        raise CorruptPayloadError("Tentativa de leitura fora dos limites do ficheiro.")
     return [carrier[i] & 1 for i in range(start, start + count)]
+
+
+def read_lsb_header(carrier: bytes) -> Header:
+    """Valida o cabeçalho escrito nos LSB de ``carrier`` (bytes portadores)."""
+    if len(carrier) < HEADER_BITS:
+        return parse_header(b"", 0)  # lança NoPayloadError
+    raw = bits_to_bytes(extract_bits(carrier, 0, HEADER_BITS))
+    return parse_header(raw, len(carrier) // 8 - HEADER_SIZE)
+
+
+def read_lsb_payload(carrier: bytes) -> tuple[Header, bytes]:
+    header = read_lsb_header(carrier)
+    data = bits_to_bytes(extract_bits(carrier, HEADER_BITS, header.length * 8))
+    return header, data
 
 
 def _carrier(image: Image.Image) -> bytes:
@@ -36,39 +50,16 @@ def _carrier(image: Image.Image) -> bytes:
     return rgb.tobytes()
 
 
-def _parse_header(carrier: bytes, image: Image.Image) -> Header:
-    if len(carrier) < HEADER_BITS:
-        return parse_header(b"", 0)  # lança NoPayloadError
-    raw = bits_to_bytes(extract_bits(carrier, 0, HEADER_BITS))
-    return parse_header(raw, capacity_bytes(image))
-
-
 def read_header(image: Image.Image) -> Header:
     """Lê e valida apenas o cabeçalho (útil para saber se está encriptado).
 
     Lança ``NoPayloadError`` se a imagem não tiver uma mensagem StegoLab.
     """
-    return _parse_header(_carrier(image), image)
+    return read_lsb_header(_carrier(image))
 
 
-def reveal_message(image: Image.Image, password: str | None = None) -> RevealResult:
-    carrier = _carrier(image)
-    header = _parse_header(carrier, image)
-
-    data = bits_to_bytes(extract_bits(carrier, HEADER_BITS, header.length * 8))
-    verify_data(header, data)
-
-    if header.encrypted:
-        if not password:
-            raise PasswordRequiredError(
-                "Esta mensagem está encriptada. Introduza a palavra-passe."
-            )
-        data = crypto.decrypt(data, password)
-
-    try:
-        message = data.decode("utf-8")
-    except UnicodeDecodeError:
-        raise CorruptPayloadError(
-            "Os dados extraídos não formam texto UTF-8 válido."
-        ) from None
-    return RevealResult(message=message, encrypted=header.encrypted, data_bytes=header.length)
+def reveal_message(
+    image: Image.Image, password: str | None = None, now: float | None = None
+) -> RevealResult:
+    header, data = read_lsb_payload(_carrier(image))
+    return open_payload(header, data, password, now)

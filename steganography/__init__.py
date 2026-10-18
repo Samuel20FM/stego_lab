@@ -6,11 +6,15 @@ from .errors import (
     CapacityError,
     CorruptPayloadError,
     EmptyMessageError,
+    ExpiredMessageError,
+    InvalidFileError,
     InvalidImageError,
+    InvalidSecretError,
     MessageTooLongError,
     NoPayloadError,
     PasswordRequiredError,
     StegoError,
+    ToolMissingError,
     WrongPasswordError,
 )
 from .image_utils import (
@@ -21,8 +25,25 @@ from .image_utils import (
     load_image,
     save_image,
 )
+from .secret import MAX_SECRET_FILE_BYTES, Secret, estimate_size, format_datetime
+from .carriers import COVER_TYPES, Carrier, Output, ffmpeg_available, hide, open_carrier, reveal
 
 __all__ = [
+    "COVER_TYPES",
+    "Carrier",
+    "ExpiredMessageError",
+    "InvalidFileError",
+    "InvalidSecretError",
+    "MAX_SECRET_FILE_BYTES",
+    "Output",
+    "Secret",
+    "ToolMissingError",
+    "estimate_size",
+    "ffmpeg_available",
+    "format_datetime",
+    "hide",
+    "open_carrier",
+    "reveal",
     "MAX_MESSAGE_BYTES",
     "OUTPUT_FORMATS",
     "CapacityError",
