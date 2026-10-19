@@ -1,0 +1,12 @@
+O que fazer pra melhorar?
+
+
+1 - Hospedar (E verificar se ja funciona)
+	Hospedado em : https://stegolab.streamlit.app/
+	Funciona bem. Eh so fazer git push que ele atualiza (para gerencia o projecto entre em https://share.streamlit.io/)
+	
+
+2 -O que melhorar.
+
+Aceitar outros formatos para estegonograr inves de uma imagem (arquivos(pdf, txt, word, etc) , audio e video se for possivel).
+Acrescentar logica de destruicao de mensagem (Por data).

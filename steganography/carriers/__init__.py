@@ -108,7 +108,15 @@ def hide(carrier: Carrier, secret: Secret, password: str | None = None, fmt: str
             f"O segredo precisa de {needed:,} bytes, mas este ficheiro só suporta "
             f"{available:,} bytes. Use um ficheiro maior ou um segredo mais pequeno."
         )
-    return carrier.embed(payload, fmt)
+    out = carrier.embed(payload, fmt)
+    # O ficheiro gerado tem de poder ser carregado de novo para extrair o segredo.
+    limit = VIDEO_MAX_BYTES if carrier.kind == "video" else MAX_FILE_BYTES
+    if len(out.data) > limit:
+        raise CapacityError(
+            f"O ficheiro resultante teria {len(out.data) / (1024 * 1024):.0f} MB, acima do limite de "
+            f"{limit // (1024 * 1024)} MB. Use um ficheiro de cobertura com menos resolução ou duração."
+        )
+    return out
 
 
 def reveal(carrier: Carrier, password: str | None = None, now: float | None = None) -> RevealResult:

@@ -33,7 +33,8 @@ OUTPUT_FORMATS: dict[str, dict] = {
     },
 }
 
-MAX_FILE_BYTES = 25 * 1024 * 1024  # 25 MB
+MAX_FILE_BYTES = 100 * 1024 * 1024  # 100 MB, igual ao maxUploadSize da app
+_LIMIT_MSG = f"O ficheiro excede o limite de {MAX_FILE_BYTES // (1024 * 1024)} MB."
 MAX_PIXELS = 40_000_000  # ~40 megapíxeis
 MIN_SIDE = 8
 
@@ -61,14 +62,14 @@ def _read_source(source: ImageSource) -> bytes:
         if not path.is_file():
             raise InvalidImageError("O ficheiro indicado não existe.")
         if path.stat().st_size > MAX_FILE_BYTES:
-            raise InvalidImageError("O ficheiro excede o limite de 25 MB.")
+            raise InvalidImageError(_LIMIT_MSG)
         return path.read_bytes()
     if isinstance(source, (bytes, bytearray)):
         data = bytes(source)
     else:
         data = source.read(MAX_FILE_BYTES + 1)
     if len(data) > MAX_FILE_BYTES:
-        raise InvalidImageError("O ficheiro excede o limite de 25 MB.")
+        raise InvalidImageError(_LIMIT_MSG)
     return data
 
 

@@ -68,7 +68,7 @@ assets/                 logo.svg, favicon.png, demo_paisagem.png (960×600)
 ### Formatos
 - **Entrada** (validada pelo conteúdo com Pillow, não pela extensão): PNG, BMP, TIFF, WEBP, JPEG. O JPEG serve só como imagem de partida.
 - **Saída** (todas sem perdas e testadas): PNG (recomendado), BMP, TIFF com LZW, WebP sem perdas (`exact=True`).
-- **Limites:** ficheiros até 25 MB, imagens até 40 MP, lado mínimo de 8 px.
+- **Limites:** ficheiros até 100 MB (entrada e resultado), imagens até 40 MP, lado mínimo de 8 px.
 
 ## 4. Interface (estado actual)
 

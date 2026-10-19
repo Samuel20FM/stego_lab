@@ -209,6 +209,17 @@ def test_expired_and_encrypted_still_needs_password_first():
         reveal(open_carrier(out.data, "x.png"), "errada", now=expires + 1)
 
 
+def test_output_must_fit_the_file_limit(monkeypatch):
+    """Uma foto grande gera um PNG maior do que o original: tem de caber no limite."""
+    import steganography.carriers as carriers
+
+    carrier = open_carrier(COVERS["png"](), "x.png")
+    out = hide(carrier, Secret.file("doc.pdf", b"%PDF" * 50), "certa")
+    monkeypatch.setattr(carriers, "MAX_FILE_BYTES", len(out.data) - 1)
+    with pytest.raises(CapacityError, match="ficheiro resultante"):
+        hide(carrier, Secret.file("doc.pdf", b"%PDF" * 50), "certa")
+
+
 def test_plain_text_keeps_original_format():
     """Sem ficheiro nem validade, o payload é igual ao da primeira versão."""
     carrier = open_carrier(COVERS["png"](), "x.png")

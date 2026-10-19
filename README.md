@@ -265,7 +265,7 @@ Resultado no ambiente de desenvolvimento (Linux, Python 3.12.3, FFmpeg 6.1.1): *
 - **Sem encriptação, não há confidencialidade:** quem conhecer o formato `STGL` consegue ler a mensagem.
 - Os bits são escritos sequencialmente a partir do canto superior esquerdo. Não há dispersão pseudo-aleatória.
 - O JPEG é aceite **apenas como imagem de partida**: o resultado é sempre gravado sem perdas e o JPEG nunca é oferecido como formato de saída.
-- Limites: ficheiros até 25 MB (vídeos até 100 MB, incluindo o resultado), imagens até 40 megapíxeis, mensagens até 100 000 bytes e ficheiros escondidos até 2 MB. Em imagens animadas, só é usado o primeiro quadro.
+- Limites: ficheiros até 100 MB (o mesmo limite vale para o ficheiro gerado), imagens até 40 megapíxeis, mensagens até 100 000 bytes e ficheiros escondidos até 2 MB. Em imagens animadas, só é usado o primeiro quadro.
 - **Áudio e vídeo:** converter para MP3/AAC/MP4, editar o som ou partilhar em redes sociais destrói o segredo. O `.mkv` gerado abre no VLC ou no mpv, mas alguns navegadores não o reproduzem. MP3, OGG e FLAC não são aceites como portador: converta para WAV.
 - **Texto:** algumas aplicações removem caracteres de largura zero ao copiar e colar.
 - **PDF e Office:** não é LSB, por isso o bloco é visível num editor hexadecimal. Voltar a gravar o documento no Word ou noutro editor de PDF remove-o.
