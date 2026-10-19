@@ -69,8 +69,8 @@ def brand() -> None:
 def header_tag() -> None:
     """Identificação académica discreta (lado direito do cabeçalho)."""
     st.html(
-        f'<div class="sl-tag">Adilson Chaguala · Samuel Massinga<br>'
-        f'<div class="sl-tag"><b>{COURSE}</b><br>'
+        f'<div class="sl-tag">{" · ".join(reversed(MEMBERS))}<br>'
+        f"<b>{COURSE}</b><br>"
         f"Universidade Pedagógica de Maputo<br>{YEAR}</div>"
     )
 
