@@ -264,3 +264,18 @@ def test_video_roundtrip_keeps_video_stream(mp4):
 def test_video_without_payload(mp4):
     with pytest.raises(NoPayloadError):
         reveal(open_carrier(mp4, "clip.mp4"))
+
+
+@pytest.mark.parametrize("encrypted", [False, True])
+@pytest.mark.parametrize("kind", ["png", "wav"])
+def test_max_secret_file_is_exact(kind, encrypted):
+    """O limite anunciado cabe à justa: mais 1 byte já não cabe."""
+    from steganography import max_secret_file
+
+    carrier = open_carrier(COVERS[kind](), "x")
+    n = max_secret_file(carrier.capacity(), encrypted=encrypted, filename="a.bin")
+    password = "pw" if encrypted else None
+    out = hide(carrier, Secret.file("a.bin", b"\x07" * n), password)
+    assert reveal(open_carrier(out.data, "x"), password).secret.content == b"\x07" * n
+    with pytest.raises(CapacityError):
+        hide(carrier, Secret.file("a.bin", b"\x07" * (n + 1)), password)

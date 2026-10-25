@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+import math
 import re
 import time
 import wave
@@ -35,6 +36,7 @@ from steganography import (
     estimate_size,
     format_datetime,
     hide,
+    max_secret_file,
     open_carrier,
     reveal,
 )
@@ -345,14 +347,26 @@ def render_hide_tab() -> None:
                 content_len = len(message.encode("utf-8"))
                 ui.counter(len(message), content_len)
             else:
+                # O limite depende do ficheiro de cobertura, não do limite geral de upload.
+                plain_max = max_secret_file(cap) if carrier is not None else MAX_SECRET_FILE_BYTES
                 secret_upload = st.file_uploader(
                     "Ficheiro a esconder",
                     key=f"hide_secret_{nonce}",
                     help="Qualquer tipo de ficheiro (PDF, ZIP, imagem…). O StegoLab nunca o abre nem o executa.",
+                    max_upload_size=max(1, math.ceil(plain_max / (1024 * 1024))),
                     label_visibility="collapsed",
                 )
-                if secret_upload is None:
-                    st.caption(f"Escolha o ficheiro a esconder (até {ui.fmt_bytes(MAX_SECRET_FILE_BYTES)}).")
+                if carrier is None:
+                    st.caption(
+                        "Carregue primeiro o ficheiro de cobertura: é ele que define o tamanho máximo "
+                        f"do segredo (nunca mais de {ui.fmt_bytes(MAX_SECRET_FILE_BYTES)})."
+                    )
+                elif secret_upload is None:
+                    st.caption(
+                        f"Este ficheiro de cobertura aguenta um segredo até **{ui.fmt_bytes(plain_max)}** "
+                        f"(**{ui.fmt_bytes(max_secret_file(cap, encrypted=True))}** com palavra-passe). "
+                        "O nome do ficheiro também ocupa espaço."
+                    )
                 else:
                     secret_data = secret_upload.getvalue()
                     secret_name = secret_upload.name

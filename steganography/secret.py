@@ -123,6 +123,24 @@ def estimate_size(
     return HEADER_SIZE + size
 
 
+def max_secret_file(capacity: int, *, encrypted: bool = False, filename: str | None = None) -> int:
+    """Maior ficheiro (em bytes) que cabe em ``capacity`` bytes de dados do portador.
+
+    É o inverso de ``estimate_size``: conta com o bloco de metadados (nome do
+    ficheiro) e, se houver palavra-passe, com a sobrecarga da encriptação.
+    """
+    def fits(n: int) -> bool:
+        return estimate_size(n, filename=filename or "", encrypted=encrypted) - HEADER_SIZE <= capacity
+
+    lo, hi = 0, MAX_SECRET_FILE_BYTES
+    if not fits(0):
+        return 0
+    while lo < hi:  # pesquisa binária: maior n com fits(n)
+        mid = (lo + hi + 1) // 2
+        lo, hi = (mid, hi) if fits(mid) else (lo, mid - 1)
+    return lo
+
+
 def payload_size(secret: Secret, encrypted: bool = False) -> int:
     return estimate_size(
         len(secret.content),

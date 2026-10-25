@@ -25,7 +25,7 @@ from .image_utils import (
     load_image,
     save_image,
 )
-from .secret import MAX_SECRET_FILE_BYTES, Secret, estimate_size, format_datetime
+from .secret import MAX_SECRET_FILE_BYTES, Secret, estimate_size, format_datetime, max_secret_file
 from .carriers import COVER_TYPES, Carrier, Output, ffmpeg_available, hide, open_carrier, reveal
 
 __all__ = [
@@ -39,6 +39,7 @@ __all__ = [
     "Secret",
     "ToolMissingError",
     "estimate_size",
+    "max_secret_file",
     "ffmpeg_available",
     "format_datetime",
     "hide",

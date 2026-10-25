@@ -1,0 +1,8 @@
+Notes Samuel
+
+
+
+Todas as imagens por baixo dos panos eh convertido para png e depois [para um formato especifico (pois eh mais facil esconder uma imagem num png )
+
+Usamos Fernet - uma crptografia simetrica(uma única chave privada é usada tanto para codificar (criptografar) quanto para decodificar (descriptografar) a informação. )
+
