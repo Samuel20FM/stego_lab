@@ -1,5 +1,5 @@
 # Interface web local
-streamlit>=1.40,<2
+streamlit>=1.65,<2
 # Leitura, processamento e gravação de imagens
 pillow>=10.4,<13
 # Encriptação opcional (Fernet + PBKDF2)

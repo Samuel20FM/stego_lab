@@ -381,8 +381,16 @@ def render_hide_tab() -> None:
             password = confirm = ""
             if encrypt:
                 c1, c2 = st.columns(2)
-                password = c1.text_input("Palavra-passe", type="password", key=f"hide_pw_{nonce}")
-                confirm = c2.text_input("Confirmar palavra-passe", type="password", key=f"hide_pw2_{nonce}")
+                # live=True envia o valor ao servidor enquanto se escreve. Sem isto, o valor
+                # só chega no blur/Enter, e um clique imediato no botão via o campo vazio.
+                password = c1.text_input(
+                    "Palavra-passe", type="password", key=f"hide_pw_{nonce}",
+                    live=True, autocomplete="new-password",
+                )
+                confirm = c2.text_input(
+                    "Confirmar palavra-passe", type="password", key=f"hide_pw2_{nonce}",
+                    live=True, autocomplete="new-password",
+                )
 
             validity = st.segmented_control(
                 "Validade do segredo",
@@ -485,6 +493,8 @@ def render_hide_tab() -> None:
                     error = problems[0]
                 elif encrypt and not password:
                     error = "Introduza uma palavra-passe ou desactive a encriptação."
+                elif encrypt and not confirm:
+                    error = "Repita a palavra-passe no campo «Confirmar palavra-passe»."
                 elif encrypt and password != confirm:
                     error = "Confirme a palavra-passe: os dois campos têm de ser iguais."
                 if error:
@@ -745,6 +755,7 @@ def render_extract_tab() -> None:
                             "Palavra-passe",
                             type="password",
                             key=f"extract_pw_{nonce}",
+                            live=True,
                             help="Este segredo foi protegido com encriptação Fernet.",
                         )
 
